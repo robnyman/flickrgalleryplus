@@ -13,7 +13,6 @@ var flickrGalleryPlus = function () {
 			script,
 			primaryPhoto;
 		if (/flickr\.com/i.test(content.document.domain) && mainPhoto && head) {
-			alert("apa");
 			// statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");
 			// 			gBrowser.tabContainer.addEventListener("TabSelect", function () {
 			// 				flickrGalleryPlus.setStatusBar.apply(flickrGalleryPlus, arguments);
