@@ -88,7 +88,7 @@ var flickrGalleryPlus = function () {
 		var img = thumbnails.eq(index),
 			src = img[0].src.replace(fileNameReplace, "$1"),
 			title = img[0].alt,
-			href = img.parent("a").href;
+			href = img.parent("a").attr("href");
 		primaryPhoto.attr("src", src);
 		primaryPhoto.parent("a").attr("href", href);
 		imageText.html(title);
