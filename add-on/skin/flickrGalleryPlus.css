@@ -1,0 +1,8 @@
+#flickrGalleryPlus-button {
+	list-style-image: url("chrome://flickrGalleryPlus/skin/toolbar-large.png");
+}
+
+#flickrGalleryPlus-status-bar {
+	width: 30px;
+	margin: 0 5px;
+}

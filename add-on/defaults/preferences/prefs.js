@@ -1,0 +1,1 @@
+pref("extensions.flickrGalleryPlus.autorun", false);
