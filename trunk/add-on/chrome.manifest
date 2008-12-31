@@ -1,0 +1,7 @@
+content     flickrGalleryPlus    chrome/content/
+overlay chrome://browser/content/browser.xul chrome://flickrGalleryPlus/content/flickrGalleryPlus.xul
+
+locale	flickrGalleryPlus	en-US	locale/en-US/
+
+skin	flickrGalleryPlus	classic/1.0	skin/
+style	chrome://global/content/customizeToolbar.xul	chrome://flickrGalleryPlus/skin/flickrGalleryPlus.css
