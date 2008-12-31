@@ -12,7 +12,8 @@ var flickrGalleryPlus = function () {
 			head = content.document.getElementsByTagName("head")[0],
 			script,
 			primaryPhoto;
-		if (mainPhoto && head) {
+		if (/flickr\.com/i.test(content.document.domain) && mainPhoto && head) {
+			alert("apa");
 			// statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");
 			// 			gBrowser.tabContainer.addEventListener("TabSelect", function () {
 			// 				flickrGalleryPlus.setStatusBar.apply(flickrGalleryPlus, arguments);
