@@ -7,9 +7,7 @@ var flickrGalleryPlus = function () {
 		startSlideshowText = "Start slideshow",
 		stopSlideshowText = "Stop slideshow",
 		slideTime = 3000,
-		prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch),
-		timer,
-		imageText;
+		prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
 		
 	init = function () {
 		var mainPhoto = content.document.getElementById("primary_photo_img"),
@@ -25,6 +23,10 @@ var flickrGalleryPlus = function () {
 			// gBrowser.addEventListener("load", function () {
 			// 				gBrowser.addEventListener("load", autoRun, false);
 			// 			}, false);
+			
+			gBrowser.tabContainer.addEventListener("TabSelect", function () {
+				stopSlideshow();
+			}, false);
 			
 			var link = content.document.createElement("link").wrappedJSObject;
 			link.type = "text/css";
@@ -91,6 +93,7 @@ var flickrGalleryPlus = function () {
 				primaryPhoto : null,
 				imageTextContainer : null,
 				loadingImage : null,
+				timer : null,
 				controlSlideshow : null,
 				slideTimer : null,
 				slideshowRunning : false
@@ -117,11 +120,12 @@ var flickrGalleryPlus = function () {
 		state.primaryPhoto.removeAttr("width");
 		state.primaryPhoto.removeAttr("height");
 		state.primaryPhoto.load(function () {
-			clearTimeout(timer);
+			clearTimeout(state.timer);
 			state.loadingImage.hide();
 		});
 		
-		var thumbnailElms = $("#setThumbs .pc_img");
+		var thumbnailElms = $("#setThumbs .pc_img"),
+			preloadImages = prefManager.getBoolPref("extensions.flickrGalleryPlus.preloadImages");
 		for (var i=0, il=thumbnailElms.length, thumbnail, preload; i<il; i++) {
 			thumbnail = $(thumbnailElms[i]);
 			src = thumbnail[0].src.replace(fileNameReplace, "$1");
@@ -131,8 +135,10 @@ var flickrGalleryPlus = function () {
 				title : thumbnail[0].alt,
 				href : thumbnail.parent("a").attr("href")
 			});
-			preload = new Image();
-			preload.src = src;	
+			if (preloadImages) {
+				preload = content.document.createElement("img").wrappedJSObject;
+				preload.setAttribute("src", src);
+			}
 			thumbnail.click(function (index) {
 				return function (evt) {
 					setImage(index);
@@ -160,11 +166,11 @@ var flickrGalleryPlus = function () {
 	};
 	
 	setImage = function (index) {
-		timer = window.setTimeout(function () {
-			state.loadingImage.show();
-		}, 200);
 		var state = getState(),
 			thumb = state.thumbnails[index];
+		state.timer = window.setTimeout(function () {
+			state.loadingImage.show();
+		}, 200);
 		state.primaryPhoto.attr("src", thumb.src);
 		state.primaryPhoto.parent("a").attr("href", thumb.href);
 		state.imageTextContainer.html(thumb.title);
@@ -187,6 +193,7 @@ var flickrGalleryPlus = function () {
 		var state = getState();
 		state.slideshowRunning = true;
 		state.controlSlideshow.text(stopSlideshowText);
+		state.controlSlideshow.addClass("stop-slideshow");
 		setImage(0);
 		state.slideTimer = setInterval(function () {
 			if(state.currentImageIndex < (state.thumbnails.length - 1)) {
@@ -202,10 +209,13 @@ var flickrGalleryPlus = function () {
 	
 	stopSlideshow = function () {
 		var state = getState();
-		clearInterval(state.slideTimer);
-		state.slideshowRunning = false;
-		if (state.controlSlideshow) {
-			state.controlSlideshow.text(startSlideshowText);
+		if (state) {
+			clearInterval(state.slideTimer);
+			state.slideshowRunning = false;
+			if (state.controlSlideshow) {
+				state.controlSlideshow.text(startSlideshowText);
+				state.controlSlideshow.removeClass("stop-slideshow");
+			}
 		}
 		return false;
 	};
