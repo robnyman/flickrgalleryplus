@@ -4,17 +4,15 @@
 var flickrGalleryPlus = function () {
 	var fileNameReplace = /\_s(\.jpg)/i,
 		states = [],
+		statusBarButton,
 		startSlideshowText = "Start slideshow",
 		stopSlideshowText = "Stop slideshow",
 		slideTime = 3000,
 		prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
 		
 	init = function () {
-		var mainPhoto = content.document.getElementById("primary_photo_img"),
-			head = content.document.getElementsByTagName("head")[0],
-			script,
-			link;
-		if (/flickr\.com/i.test(content.document.domain) && mainPhoto && head) {
+		var autoRun = prefManager.getBoolPref("extensions.flickrGalleryPlus.autorun");
+		if (autoRun && /flickr\.com/i.test(content.document.domain)) {
 			// statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");
 			// 			gBrowser.tabContainer.addEventListener("TabSelect", function () {
 			// 				flickrGalleryPlus.setStatusBar.apply(flickrGalleryPlus, arguments);
@@ -24,6 +22,23 @@ var flickrGalleryPlus = function () {
 			// 				gBrowser.addEventListener("load", autoRun, false);
 			// 			}, false);
 			
+			run(true);
+		}
+	};
+	
+	run = function (atLoad) {
+		var state = getState(),
+			autoRun = prefManager.getBoolPref("extensions.flickrGalleryPlus.autorun"),
+			mainPhoto = content.document.getElementById("primary_photo_img"),
+			head = content.document.getElementsByTagName("head")[0],
+			script,
+			link;
+		if ((!atLoad || !autoRun) && state && state.hasRun) {
+			state.hasRun = false;
+			setStatusBar();
+			content.location.reload();
+		}
+		else if (mainPhoto && head) {
 			gBrowser.tabContainer.addEventListener("TabSelect", function () {
 				stopSlideshow();
 			}, false);
@@ -41,15 +56,11 @@ var flickrGalleryPlus = function () {
 			
 			slideTime = parseInt(prefManager.getIntPref("extensions.flickrGalleryPlus.slideshowSlideTime"), 10);
 			
-			script.onload = autoRun;
+			script.onload = applyGallery;
+			
+			prefManager.setBoolPref("extensions.flickrGalleryPlus.autorun", true);
 		}
-	};
-	
-	autoRun = function () {
-		var autoRun = prefManager.getBoolPref("extensions.flickrGalleryPlus.autorun");
-		if (autoRun) {
-			applyGallery();
-		}
+		statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");
 	};
 	
 	getState = function () {
@@ -80,7 +91,22 @@ var flickrGalleryPlus = function () {
 	};
 	
 	setStatusBar = function () {
-		
+		var state = this.getState(),
+			statusIcon = "chrome://flickrGalleryPlus/skin/",
+			statusText;
+			
+		if(state && state.hasRun) {
+			statusIcon += "status-bar.png";
+			statusText = "Disable Flickr Gallery Plus!";
+			prefManager.setBoolPref("extensions.flickrGalleryPlus.autorun", true);
+		}
+		else {
+			statusIcon += "status-bar-disabled.png";
+			statusText = "Activate Flickr Gallery Plus!";
+			prefManager.setBoolPref("extensions.flickrGalleryPlus.autorun", false);
+		}
+		statusBarButton.setAttribute("src", statusIcon);
+		statusBarButton.setAttribute("tooltiptext", statusText);
 	};
 	
 	applyGallery = function () {
@@ -88,6 +114,7 @@ var flickrGalleryPlus = function () {
 			tabIndex = getTabIndex();
 		if(!state) {
 			state = states[tabIndex] = {
+				hasRun : true,
 				thumbnails : [],
 				currentImageIndex : 0,
 				primaryPhoto : null,
@@ -100,6 +127,7 @@ var flickrGalleryPlus = function () {
 			};
 		}
 		clearState();
+		state.hasRun = true;
 		
 		$ = content.wrappedJSObject.jQuery;
 		var thumbnailContainer = $("#ViewSet .vsThumbnail");
@@ -163,6 +191,8 @@ var flickrGalleryPlus = function () {
 				}
 			}
 		});
+		
+		setStatusBar();
 	};
 	
 	setImage = function (index) {
@@ -227,24 +257,13 @@ var flickrGalleryPlus = function () {
 	};
 	
 	return {
-		init : init
+		init : init,
+		run : run
 	};
 }();
 
 flickrGalleryPlusWrapper = {
-	onMenuItemCommand : function (evt) {
-		flickrGalleryPlus.run();
-	},
-	
-	onContextMenuItemCommand : function (evt) {
-		flickrGalleryPlus.run();
-	},
-	
 	onStatusbarButtonCommand : function (evt) {
-		flickrGalleryPlus.run();
-	},
-	
-	onToolbarButtonCommand : function (evt) {
 		flickrGalleryPlus.run();
 	}
 };
