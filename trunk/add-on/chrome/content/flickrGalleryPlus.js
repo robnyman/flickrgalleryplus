@@ -13,13 +13,8 @@ var flickrGalleryPlus = function () {
 	init = function () {
 		var autoRun = prefManager.getBoolPref("extensions.flickrGalleryPlus.autorun");
 		if (autoRun && /flickr\.com/i.test(content.document.domain)) {
-			// statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");
-			// 			gBrowser.tabContainer.addEventListener("TabSelect", function () {
-			// 				flickrGalleryPlus.setStatusBar.apply(flickrGalleryPlus, arguments);
-			// 			}, false);
-			
-			// gBrowser.addEventListener("load", function () {
-			// 				gBrowser.addEventListener("load", autoRun, false);
+			// gBrowser.tabContainer.addEventListener("TabSelect", function () {
+			// 				stopSlideshow();
 			// 			}, false);
 			
 			run(true);
@@ -57,8 +52,6 @@ var flickrGalleryPlus = function () {
 			slideTime = parseInt(prefManager.getIntPref("extensions.flickrGalleryPlus.slideshowSlideTime"), 10);
 			
 			script.onload = applyGallery;
-			
-			prefManager.setBoolPref("extensions.flickrGalleryPlus.autorun", true);
 		}
 		statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");
 	};
@@ -84,7 +77,18 @@ var flickrGalleryPlus = function () {
 	clearState = function () {
 		var state = this.getState();
 		if (state) {
+			state.hasRun = false;
 			state.thumbnails = [];
+			state.currentImageIndex = 0;
+			state.primaryPhoto = null;
+			state.imageTextContainer = null;
+			state.loadingImage = null;
+			state.timer = null;
+			state.controlSlideshow = null;
+			state.slideTimer = null;
+			state.slideIncrementTimer = null;
+			state.slideshowRunning = false;
+			
 			stopSlideshow();
 			//this.setStatusBar();
 		}
@@ -123,6 +127,7 @@ var flickrGalleryPlus = function () {
 				timer : null,
 				controlSlideshow : null,
 				slideTimer : null,
+				slideIncrementTimer : null,
 				slideshowRunning : false
 			};
 		}
@@ -228,7 +233,7 @@ var flickrGalleryPlus = function () {
 		state.slideTimer = setInterval(function () {
 			if(state.currentImageIndex < (state.thumbnails.length - 1)) {
 				state.primaryPhoto.fadeOut(500);
-				setTimeout(incrementAndFade, 500);
+				state.slideIncrementTimer = setTimeout(incrementAndFade, 500);
 			}
 			else {
 				stopSlideshow();
@@ -241,10 +246,14 @@ var flickrGalleryPlus = function () {
 		var state = getState();
 		if (state) {
 			clearInterval(state.slideTimer);
+			clearTimeout(state.slideIncrementTimer);
 			state.slideshowRunning = false;
 			if (state.controlSlideshow) {
 				state.controlSlideshow.text(startSlideshowText);
 				state.controlSlideshow.removeClass("stop-slideshow");
+			}
+			if (state.primaryPhoto) {
+				state.primaryPhoto.fadeIn(500);
 			}
 		}
 		return false;
@@ -252,8 +261,10 @@ var flickrGalleryPlus = function () {
 	
 	incrementAndFade = function () {
 		var state = getState();
-		setImage(state.currentImageIndex + 1);
-		state.primaryPhoto.fadeIn(500);
+		if (state.slideTimer) {
+			setImage(state.currentImageIndex + 1);
+			state.primaryPhoto.fadeIn(500);
+		}	
 	};
 	
 	return {
