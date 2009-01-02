@@ -8,9 +8,8 @@
 	<prefpane label="Inline Code Finder Preferences">
 		<preferences>
 			<preference id="flickrGalleryPlus-autorun" name="extensions.flickrGalleryPlus.autorun" type="bool"/>
-			<preference id="flickrGalleryPlus-inline-events" name="extensions.flickrGalleryPlus.inlineEvents" type="bool"/>
-			<preference id="flickrGalleryPlus-inline-style" name="extensions.flickrGalleryPlus.inlineStyle" type="bool"/>
-			<preference id="flickrGalleryPlus-javascript-links" name="extensions.flickrGalleryPlus.javascriptLinks" type="bool"/>
+			<preference id="flickrGalleryPlus-preload-images" name="extensions.flickrGalleryPlus.preloadImages" type="bool"/>
+			<preference id="flickrGalleryPlus-slideshow-slide-time" name="extensions.flickrGalleryPlus.slideshowSlideTime" type="int"/>
 		</preferences>
 		
 		<groupbox>
@@ -27,18 +26,13 @@
 					</row>
 		
 					<row>	
-						<label control="inline-events" value="Inline events"/>
-						<checkbox id="inline-events" preference="flickrGalleryPlus-inline-events"/>
+						<label control="preload-images" value="Preload images"/>
+						<checkbox id="preload-images" preference="flickrGalleryPlus-preload-images"/>
 					</row>
-		
+					
 					<row>	
-						<label control="inline-style" value="Inline Styles"/>
-						<checkbox id="inline-style" preference="flickrGalleryPlus-inline-style"/>
-					</row>
-			
-					<row>	
-						<label control="javascript-links" value="javascript: links"/>
-						<checkbox id="javascript-links" preference="flickrGalleryPlus-javascript-links"/>
+						<label control="slideshow-slide-time" value="Slide display time (in seconds)"/>
+						<checkbox id="slideshow-slide-time" preference="flickrGalleryPlus-slideshow-slide-time"/>
 					</row>
 				</rows>
 			</grid>
