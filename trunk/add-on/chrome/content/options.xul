@@ -31,8 +31,12 @@
 					</row>
 					
 					<row>	
-						<label control="slideshow-slide-time" value="Slide display time (in seconds)"/>
-						<checkbox id="slideshow-slide-time" preference="flickrGalleryPlus-slideshow-slide-time"/>
+						<label control="slideshow-slide-time" value="Slide display time"/>
+						<radiogroup id="slideshow-slide-time" preference="flickrGalleryPlus-slideshow-slide-time">
+						  <radio value="2000" label="1s" selected="true"/>
+						  <radio value="4000" label="3s"/>
+						  <radio value="6000" label="5s"/>
+						</radiogroup>
 					</row>
 				</rows>
 			</grid>
