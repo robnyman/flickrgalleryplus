@@ -8,7 +8,7 @@
                    em:version="0.8"
                    em:creator="Robert Nyman"
                    em:description="Improved gallery presentation for Flickr sets"
-                   em:homepageURL="http://www.robertnyman.com/flickrGalleryPlus"
+                   em:homepageURL="http://www.robertnyman.com/flickrgalleryplus/"
 				   em:optionsURL="chrome://flickrGalleryPlus/content/options.xul"
 				   em:iconURL="chrome://flickrGalleryPlus/skin/icon.png"
 			>
