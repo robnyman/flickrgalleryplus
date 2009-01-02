@@ -1,3 +1,40 @@
+#TopBar .Header {
+	width: 1000px;
+}
+
+#Main {
+	width: 1000px;
+}
+
+#ViewSet {
+	width: 1000px;
+}
+
+#ViewSet .vsDetails {
+	width: 500px;
+}
+
+#flickrGalleryPlusLoadingImage {
+	position : absolute;
+	left : 48%;
+	top : 300px;
+	width: 32px;
+	height: 32px;
+	background : #fff url(loading.gif) no-repeat center center;
+	padding : 10px 5px;
+	border : 1px solid #333;
+}
+
+.flickrGalleryPlus-selected {
+	outline: 2px solid #0063dc;
+}
+
+#flickrGalleryPlusControlSlideshow {
+	cursor: pointer;
+}
+
+
+/* XUL styles */
 #flickrGalleryPlus-button {
 	list-style-image: url("chrome://flickrGalleryPlus/skin/toolbar-large.png");
 }

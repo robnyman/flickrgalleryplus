@@ -1,17 +1,21 @@
+/*
+	Developed by Robert Nyman, http://www.robertnyman.com
+*/ 
 var flickrGalleryPlus = function () {
 	var fileNameReplace = /\_s(\.jpg)/i,
-		primaryPhoto,
-		thumbnails,
-		currentImageIndex = 0,
-		loadingImage,
+		states = [],
+		startSlideshowText = "Start slideshow",
+		stopSlideshowText = "Stop slideshow",
+		slideTime = 3000,
+		prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch),
 		timer,
-		imageText,
-		prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+		imageText;
+		
 	init = function () {
 		var mainPhoto = content.document.getElementById("primary_photo_img"),
 			head = content.document.getElementsByTagName("head")[0],
 			script,
-			primaryPhoto;
+			link;
 		if (/flickr\.com/i.test(content.document.domain) && mainPhoto && head) {
 			// statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");
 			// 			gBrowser.tabContainer.addEventListener("TabSelect", function () {
@@ -22,55 +26,114 @@ var flickrGalleryPlus = function () {
 			// 				gBrowser.addEventListener("load", autoRun, false);
 			// 			}, false);
 			
-			//alert("Bäst!");
+			var link = content.document.createElement("link").wrappedJSObject;
+			link.type = "text/css";
+			link.rel = "stylesheet";
+			link.href = "chrome://flickrGalleryPlus/skin/flickrGalleryPlus.css";
+			head.appendChild(link);
 			
 			script = content.document.createElement("script").wrappedJSObject;
-			script.src = "http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js";
+			script.src = "chrome://flickrGalleryPlus/content/jquery-1.2.6.min.js";
 			script.type = "text/javascript";
-			
 			head.appendChild(script);
-			script.onload = applyGallery;
+			
+			slideTime = parseInt(prefManager.getIntPref("extensions.flickrGalleryPlus.slideshowSlideTime"), 10) * 1000;
+			
+			script.onload = autoRun;
 		}
 	};
+	
 	autoRun = function () {
-		// var autoRun = prefManager.getBoolPref("extensions.flickrGalleryPlus.autorun");
-		// 		if (autoRun && content.location.href !== "about:blank") {
-		// 			applyGallery();
-		// 		}
-		//applyGallery();
+		var autoRun = prefManager.getBoolPref("extensions.flickrGalleryPlus.autorun");
+		if (autoRun) {
+			applyGallery();
+		}
 	};
+	
+	getState = function () {
+		var tabIndex = this.getTabIndex(),
+			state = states[tabIndex];
+		return state;	
+	};
+	
+	getTabIndex = function () {
+		var browsers = gBrowser.browsers,
+			tabIndex;
+		for (var i=0, il=browsers.length, browser; i<il; i++) {
+			if(gBrowser.getBrowserAtIndex(i).contentWindow === content) {
+				tabIndex = i;
+				break;
+			}
+		}
+		return tabIndex;
+	};
+	
+	clearState = function () {
+		var state = this.getState();
+		if (state) {
+			state.thumbnails = [];
+			state.hasRun = false;
+			//this.setStatusBar();
+		}
+	};
+	
+	setStatusBar = function () {
+		
+	};
+	
 	applyGallery = function () {
+		var state = getState(),
+			tabIndex = getTabIndex();
+		if(!state) {
+			state = states[tabIndex] = {
+				hasRun : false,
+				thumbnails : [],
+				currentImageIndex : 0,
+				primaryPhoto : null,
+				imageTextContainer : null,
+				loadingImage : null,
+				controlSlideshow : null,
+				slideTimer : null,
+				slideshowRunning : false
+			};
+		}
+		clearState();
+		
 		$ = content.wrappedJSObject.jQuery;
-		$("#TopBar .Header").css("width", "1000px");
-		$("#Main").css("width", "1000px");
-		$("#ViewSet").css("width", "1000px");
-		$("#ViewSet .vsDetails").css("width", "500px");
-		$("#ViewSet .vsDescription").prepend('<p id="flickrGalleryPlusImageText"></p>');
-		imageText = $("#flickrGalleryPlusImageText");
+		var galleryDescription = $("#ViewSet .vsThumbnail");
+		
+		galleryDescription.append('<p id="flickrGalleryPlusImageText"></p>');
+		state.imageTextContainer = $("#flickrGalleryPlusImageText");
+		
+		galleryDescription.append('<p><a id="flickrGalleryPlusControlSlideshow">' + startSlideshowText + '</a></p>');
+		state.controlSlideshow = $("#flickrGalleryPlusControlSlideshow");
+		state.controlSlideshow.click(controlSlideshow);
 		
 		var body = $("body");
-		body.append('<img id="flickrGalleryPlusLoadingImage" src="http://www.robertnyman.com/flickrGalleryPlusImages/loading.gif"');
-		loadingImage = $("#flickrGalleryPlusLoadingImage");
-		loadingImage.css("position", "absolute");
-		loadingImage.css("left", ((body.width() / 2) - 16) + "px");
-		loadingImage.css("top", "300px");
-		loadingImage.css("background", "#fff");
-		loadingImage.css("padding", "10px");
-		loadingImage.css("border", "1px solid #333");
+		body.append('<div id="flickrGalleryPlusLoadingImage"></div>');
+		state.loadingImage = $("#flickrGalleryPlusLoadingImage");
+		state.loadingImage.css("left", ((body.width() / 2) - 8) + "px");
 		
-		primaryPhoto = $("#primary_photo_img");
-		primaryPhoto.removeAttr("width");
-		primaryPhoto.removeAttr("height");
-		primaryPhoto.load(function () {
+		state.primaryPhoto = $("#primary_photo_img");
+		state.primaryPhoto.removeAttr("width");
+		state.primaryPhoto.removeAttr("height");
+		state.primaryPhoto.load(function () {
 			clearTimeout(timer);
-			loadingImage.hide();
+			state.loadingImage.hide();
 		});
 		
-		thumbnails = $("#setThumbs .pc_img");
-		setImage(0);
-		
-		for (var i=0, il=thumbnails.length; i<il; i++) {
-			thumbnail = $(thumbnails[i]);
+		var thumbnailElms = $("#setThumbs .pc_img");
+		for (var i=0, il=thumbnailElms.length, thumbnail, preload; i<il; i++) {
+			thumbnail = $(thumbnailElms[i]);
+			src = thumbnail[0].src.replace(fileNameReplace, "$1");
+			state.thumbnails.push({
+				img : thumbnail,
+				src : src,
+				title : thumbnail[0].alt,
+				href : thumbnail.parent("a").attr("href")
+			});
+			preload = new Image();
+			preload.src = src;	
 			thumbnail.click(function (index) {
 				return function (evt) {
 					setImage(index);
@@ -79,32 +142,79 @@ var flickrGalleryPlus = function () {
 			}(i));
 		};
 		
-		$(content.document.wrappedJSObject).keydown(function (evt) {
-			var keyCode = evt.keyCode,
-				newIndex;
-			if (keyCode === 37 && currentImageIndex > 0) {
-				setImage(currentImageIndex - 1);
-			}
-			else if(keyCode === 39 && currentImageIndex < (thumbnails.length - 1)) {
-				setImage(currentImageIndex + 1);
+		setImage(0);
+		
+		$(content.document.wrappedJSObject).keypress(function (evt) {
+			var state = getState(),
+				keyCode = evt.keyCode,
+				altKey = evt.originalEvent.altKey,
+				imageIndex = state.currentImageIndex;
+			if (!altKey) {
+				if (keyCode === 37 && imageIndex > 0) {
+					setImage(imageIndex - 1);
+				}
+				else if(keyCode === 39 && imageIndex < (state.thumbnails.length - 1)) {
+					setImage(imageIndex + 1);
+				}
 			}
 		});
 	};
+	
 	setImage = function (index) {
 		timer = window.setTimeout(function () {
-			loadingImage.show();
+			state.loadingImage.show();
 		}, 200);
-		var img = thumbnails.eq(index),
-			src = img[0].src.replace(fileNameReplace, "$1"),
-			title = img[0].alt,
-			href = img.parent("a").attr("href");
-		primaryPhoto.attr("src", src);
-		primaryPhoto.parent("a").attr("href", href);
-		imageText.html(title);
-		thumbnails.eq(currentImageIndex).css("outline", "0");
-		currentImageIndex = index;
-		img.css("outline", "2px solid #0063dc");
+		var state = getState(),
+			thumb = state.thumbnails[index];
+		state.primaryPhoto.attr("src", thumb.src);
+		state.primaryPhoto.parent("a").attr("href", thumb.href);
+		state.imageTextContainer.html(thumb.title);
+		state.thumbnails[state.currentImageIndex].img.removeClass("flickrGalleryPlus-selected");
+		state.currentImageIndex = index;
+		thumb.img.addClass("flickrGalleryPlus-selected");
 	};
+	
+	controlSlideshow = function () {
+		var state = getState();
+		if (state.slideshowRunning) {
+			stopSlideshow();
+		}
+		else {
+			startSlideshow();
+		}
+	};
+	
+	startSlideshow = function () {
+		var state = getState();
+		state.slideshowRunning = true;
+		state.controlSlideshow.text(stopSlideshowText);
+		setImage(0);
+		state.slideTimer = setInterval(function () {
+			if(state.currentImageIndex < (state.thumbnails.length - 1)) {
+				state.primaryPhoto.fadeOut(500);
+				setTimeout(incrementAndFade, 500);
+			}
+			else {
+				stopSlideshow();
+			}
+		}, slideTime);
+		return false;
+	};
+	
+	stopSlideshow = function () {
+		var state = getState();
+		clearInterval(state.slideTimer);
+		state.slideshowRunning = false;
+		state.controlSlideshow.text(startSlideshowText);
+		return false;
+	};
+	
+	incrementAndFade = function () {
+		var state = getState();
+		setImage(state.currentImageIndex + 1);
+		state.primaryPhoto.fadeIn(500);
+	};
+	
 	return {
 		init : init
 	};
@@ -129,7 +239,7 @@ flickrGalleryPlusWrapper = {
 };
 
 window.addEventListener("load", function () {
-	gBrowser.addEventListener("load", function () {
+	gBrowser.addEventListener("DOMContentLoaded", function () {
 		flickrGalleryPlus.init.apply(flickrGalleryPlus, arguments);
 	}, false);
 }, false);
