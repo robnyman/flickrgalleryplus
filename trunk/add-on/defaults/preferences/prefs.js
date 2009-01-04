@@ -1,3 +1,3 @@
-pref("extensions.flickrGalleryPlus.autorun", true);
-pref("extensions.flickrGalleryPlus.preloadImages", true);
-pref("extensions.flickrGalleryPlus.slideshowSlideTime", 4000);
+pref("extensions.flickrgalleryplus.autorun", true);
+pref("extensions.flickrgalleryplus.preloadImages", true);
+pref("extensions.flickrgalleryplus.slideshowSlideTime", 4000);
