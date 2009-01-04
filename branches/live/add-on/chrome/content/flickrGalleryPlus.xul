@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://flickrGalleryPlus/skin/flickrGalleryPlus.css" type="text/css"?> 
+<!DOCTYPE flickrGalleryPlus SYSTEM "chrome://flickrGalleryPlus/locale/flickrGalleryPlus.dtd">
+<overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+		<script src="flickrGalleryPlus.js" />
+		
+		<statusbar id="status-bar">
+			<statusbarpanel id="flickrGalleryPlus-status-bar" class="statusbarpanel-iconic" src="chrome://flickrGalleryPlus/skin/status-bar-disabled.png" tooltiptext="&runflickrGalleryPlus;" onclick="flickrGalleryPlusWrapper.onStatusbarButtonCommand(event);" />
+		</statusbar>
+</overlay>
