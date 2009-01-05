@@ -9,8 +9,8 @@
                    em:creator="Robert Nyman"
                    em:description="Improved gallery presentation for Flickr sets"
                    em:homepageURL="http://www.robertnyman.com/flickrgalleryplus/"
-				   em:optionsURL="chrome://flickrGalleryPlus/content/options.xul"
-				   em:iconURL="chrome://flickrGalleryPlus/skin/icon.png"
+				   em:optionsURL="chrome://flickrgalleryplus/content/options.xul"
+				   em:iconURL="chrome://flickrgalleryplus/skin/icon.png"
 			>
     <em:targetApplication RDF:resource="rdf:#$NXdse3"/>
   </RDF:Description>
