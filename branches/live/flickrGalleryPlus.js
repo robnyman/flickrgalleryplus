@@ -1,5 +1,5 @@
 var flickrGalleryPlus = function () {
-	var fileNameReplace = /\\_s(\\.jpg)/i,
+	var fileNameReplace = /\_s(\.jpg)/i,
 		startSlideshowText = "Start slideshow",
 		stopSlideshowText = "Stop slideshow",
 		startAtFirstImage = true,
@@ -72,7 +72,7 @@ var flickrGalleryPlus = function () {
 			thumbnailTitle = thumbnailImg.alt;
 			lastBy = thumbnailTitle.lastIndexOf("by");
 			if (i === 0) {
-				alert(thumbnailImg.src + "\n" + thumbnailImg.src.replace(fileNameReplace, "$1") + "\n" + thumbnailImg.src.replace(fileNameReplace, ""));
+				alert(thumbnailImg.src + "\n" + thumbnailImg.src.replace(fileNameReplace, "$1") + "\n" + thumbnailImg.src.replace(/\_s(\.jpg)/i, "$1"));
 			}
 			thumbnails.push({
 				img : thumbnail,
