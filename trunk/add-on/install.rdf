@@ -5,7 +5,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="flickrgalleryplus@robertnyman.com"
                    em:name="Flickr Gallery Plus!"
-                   em:version="0.8"
+                   em:version="0.81"
                    em:creator="Robert Nyman"
                    em:description="Improved gallery presentation for Flickr sets"
                    em:homepageURL="http://www.robertnyman.com/flickrgalleryplus/"

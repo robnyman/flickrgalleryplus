@@ -220,7 +220,7 @@ var flickrGalleryPlus = function () {
 		if (back && imageIndex > 0) {
 			setImage(imageIndex - 1);
 		}
-		else if (imageIndex < (state.thumbnails.length - 1)) {
+		else if (!back && imageIndex < (state.thumbnails.length - 1)) {
 			setImage(imageIndex + 1);
 		}
 	};
