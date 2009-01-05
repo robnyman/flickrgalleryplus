@@ -71,6 +71,9 @@ var flickrGalleryPlus = function () {
 			thumbnailImg = thumbnail[0];
 			thumbnailTitle = thumbnailImg.alt;
 			lastBy = thumbnailTitle.lastIndexOf("by");
+			if (i === 0) {
+				alert(thumbnailImg.src + "\n" + thumbnailImg.src.replace(fileNameReplace, "$1"));
+			}
 			thumbnails.push({
 				img : thumbnail,
 				src : thumbnailImg.src.replace(fileNameReplace, "$1"),
