@@ -5,11 +5,11 @@
      title="Inline Code Finder Preferences"
      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
  
-	<prefpane label="Inline Code Finder Preferences">
+	<prefpane label="Flickr Gallery Plus! Preferences">
 		<preferences>
-			<preference id="flickrGalleryPlus-autorun" name="extensions.flickrGalleryPlus.autorun" type="bool"/>
-			<preference id="flickrGalleryPlus-preload-images" name="extensions.flickrGalleryPlus.preloadImages" type="bool"/>
-			<preference id="flickrGalleryPlus-slideshow-slide-time" name="extensions.flickrGalleryPlus.slideshowSlideTime" type="int"/>
+			<preference id="flickrGalleryPlus-autorun" name="extensions.flickrgalleryplus.autorun" type="bool"/>
+			<preference id="flickrGalleryPlus-preload-images" name="extensions.flickrgalleryplus.preloadImages" type="bool"/>
+			<preference id="flickrGalleryPlus-slideshow-slide-time" name="extensions.flickrgalleryplus.slideshowSlideTime" type="int"/>
 		</preferences>
 		
 		<groupbox>
