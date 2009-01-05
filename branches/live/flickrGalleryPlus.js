@@ -72,7 +72,7 @@ var flickrGalleryPlus = function () {
 			thumbnailTitle = thumbnailImg.alt;
 			lastBy = thumbnailTitle.lastIndexOf("by");
 			if (i === 0) {
-				alert(thumbnailImg.src + "\n" + thumbnailImg.src.replace(fileNameReplace, "$1") + "\n" + thumbnailImg.src.replace(/\_s(\.jpg)/i, "$1"));
+				document.write(thumbnailImg.src + "\n" + thumbnailImg.src.replace(fileNameReplace, "$1") + "\n" + thumbnailImg.src.replace(/\_s(\.jpg)/i, "$1"));
 			}
 			thumbnails.push({
 				img : thumbnail,
