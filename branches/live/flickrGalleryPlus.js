@@ -1,5 +1,5 @@
 var flickrGalleryPlus = function () {
-	var fileNameReplace = /\_s(\.jpg)/i,
+	var fileNameReplace = /\\_s(\\.jpg)/i,
 		startSlideshowText = "Start slideshow",
 		stopSlideshowText = "Stop slideshow",
 		startAtFirstImage = true,
