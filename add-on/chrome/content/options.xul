@@ -5,11 +5,12 @@
      title="Inline Code Finder Preferences"
      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
  
-	<prefpane label="Inline Code Finder Preferences">
+	<prefpane label="Flickr Gallery Plus! Preferences">
 		<preferences>
-			<preference id="flickrGalleryPlus-autorun" name="extensions.flickrGalleryPlus.autorun" type="bool"/>
-			<preference id="flickrGalleryPlus-preload-images" name="extensions.flickrGalleryPlus.preloadImages" type="bool"/>
-			<preference id="flickrGalleryPlus-slideshow-slide-time" name="extensions.flickrGalleryPlus.slideshowSlideTime" type="int"/>
+			<preference id="flickrGalleryPlus-autorun" name="extensions.flickrgalleryplus.autorun" type="bool"/>
+			<preference id="flickrGalleryPlus-slideshow-slide-time" name="extensions.flickrgalleryplus.slideshowSlideTime" type="int"/>
+			<preference id="flickrGalleryPlus-start-slideshow-at-first-image" name="extensions.flickrgalleryplus.startSlideshowAtFirstImage" type="bool"/>
+			<preference id="flickrGalleryPlus-preload-images" name="extensions.flickrgalleryplus.preloadImages" type="bool"/>
 		</preferences>
 		
 		<groupbox>
@@ -24,12 +25,12 @@
 						<label control="autorun" value="Autorun"/>
 						<checkbox id="autorun" preference="flickrGalleryPlus-autorun"/>
 					</row>
-		
-					<row>	
-						<label control="preload-images" value="Preload images"/>
-						<checkbox id="preload-images" preference="flickrGalleryPlus-preload-images"/>
-					</row>
 					
+					<row>	
+						<label control="start-slideshow-at-first" value="Start slideshow at first image"/>
+						<checkbox id="start-slideshow-at-first" preference="flickrGalleryPlus-start-slideshow-at-first-image"/>
+					</row>
+		
 					<row>	
 						<label control="slideshow-slide-time" value="Slide display time"/>
 						<radiogroup id="slideshow-slide-time" preference="flickrGalleryPlus-slideshow-slide-time">
@@ -37,6 +38,11 @@
 						  <radio value="4000" label="3s"/>
 						  <radio value="6000" label="5s"/>
 						</radiogroup>
+					</row>
+					
+					<row>	
+						<label control="preload-images" value="Preload images"/>
+						<checkbox id="preload-images" preference="flickrGalleryPlus-preload-images"/>
 					</row>
 				</rows>
 			</grid>
