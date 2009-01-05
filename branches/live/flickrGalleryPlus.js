@@ -17,20 +17,20 @@ var flickrGalleryPlus = function () {
 		slideTime = 3000;
 		
 	init = function () {
-		var mainImage = content.document.getElementById("primary_photo_img"),
-			head = content.document.getElementsByTagName("head")[0],
+		var mainImage = document.getElementById("primary_photo_img"),
+			head = document.getElementsByTagName("head")[0],
 			script,
 			link;
 		if (mainImage && head) {
 			mainImage.style.visibility = "hidden";
 			
-			link = content.document.createElement("link").wrappedJSObject;
+			link = document.createElement("link");
 			link.type = "text/css";
 			link.rel = "stylesheet";
 			link.href = "http://flickrgalleryplus.googlecode.com/svn/branches/live/skin/flickrGalleryPlus.css";
 			head.appendChild(link);
 			
-			script = content.document.createElement("script").wrappedJSObject;
+			script = document.createElement("script");
 			script.src = "http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js";
 			script.type = "text/javascript";
 			head.appendChild(script);
@@ -40,7 +40,6 @@ var flickrGalleryPlus = function () {
 	};
 	
 	applyGallery = function () {
-		$ = content.wrappedJSObject.jQuery;
 		var thumbnailContainer = $("#ViewSet .vsThumbnail");
 		thumbnailContainer.append('<p id="flickrGalleryPlusImageText"></p>');
 		imageTextContainer = $("#flickrGalleryPlusImageText");
@@ -88,7 +87,7 @@ var flickrGalleryPlus = function () {
 		
 		setImage(0);
 		
-		$(content.document.wrappedJSObject).keypress(function (evt) {
+		$(document).keypress(function (evt) {
 			var keyCode = evt.keyCode,
 				altKey = evt.originalEvent.altKey;
 			if (!altKey) {
@@ -103,7 +102,7 @@ var flickrGalleryPlus = function () {
 		
 		if (preloadImages) {
 			for (var j=0, jl=thumbnails.length, preload; j<jl; j++) {
-				preload = content.document.createElement("img").wrappedJSObject;
+				preload = document.createElement("img");
 				preload.setAttribute("src", thumbnails[j].src);
 			}
 		}
