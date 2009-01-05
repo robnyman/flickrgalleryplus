@@ -114,7 +114,9 @@ var flickrGalleryPlus = function () {
 		else {
 			statusIcon += "status-bar-disabled.png";
 			statusText = "Activate Flickr Gallery Plus!";
-			prefManager.setBoolPref("extensions.flickrgalleryplus.autorun", false);
+			if (typeof disable === "undefined") {
+				prefManager.setBoolPref("extensions.flickrgalleryplus.autorun", false);
+			}
 		}
 		statusBarButton.setAttribute("src", statusIcon);
 		statusBarButton.setAttribute("tooltiptext", statusText);
