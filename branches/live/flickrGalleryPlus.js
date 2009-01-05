@@ -1,5 +1,5 @@
 var flickrGalleryPlus = function () {
-	var fileNameReplace = /\_s(\.jpg)/i,
+	var fileNameReplace = /\_s/i,
 		startSlideshowText = "Start slideshow",
 		stopSlideshowText = "Stop slideshow",
 		startAtFirstImage = true,
@@ -71,9 +71,6 @@ var flickrGalleryPlus = function () {
 			thumbnailImg = thumbnail[0];
 			thumbnailTitle = thumbnailImg.alt;
 			lastBy = thumbnailTitle.lastIndexOf("by");
-			if (i === 0) {
-				document.write(thumbnailImg.src + "\n" + thumbnailImg.src.replace(fileNameReplace, "$1") + "\n" + thumbnailImg.src.replace(/\_s(\.jpg)/i, "$1"));
-			}
 			thumbnails.push({
 				img : thumbnail,
 				src : thumbnailImg.src.replace(fileNameReplace, "$1"),
