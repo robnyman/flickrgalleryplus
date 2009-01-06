@@ -8,12 +8,16 @@ var flickrGalleryPlus = function () {
 		startSlideshowText = "Start slideshow",
 		stopSlideshowText = "Stop slideshow",
 		slideTime = 3000,
+		preloadingText,
+		preloadingProgressBar,
 		prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
 		
 	init = function () {
 		var autoRun = prefManager.getBoolPref("extensions.flickrgalleryplus.autorun"),
 			mainImage;
-		statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");	
+		statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");
+		preloadingText = document.getElementById("flickrGalleryPlus-status-bar-preloading-text");
+		preloadingProgressBar = document.getElementById("flickrGalleryPlus-preloading-progress-bar");
 		if (autoRun && /flickr\.com\/photos\/[^\/]+\/sets\//i.test(content.location.href)) {
 			mainImage = content.document.getElementById("primary_photo_img");
 			if (mainImage) {
@@ -96,6 +100,10 @@ var flickrGalleryPlus = function () {
 			state.slideTimer = null;
 			state.slideIncrementTimer = null;
 			state.slideshowRunning = false;
+			state.preloadingState = {
+				items : 0,
+				loadedItems : 0
+			},
 			
 			stopSlideshow();
 		}
@@ -137,7 +145,11 @@ var flickrGalleryPlus = function () {
 				controlSlideshow : null,
 				slideTimer : null,
 				slideIncrementTimer : null,
-				slideshowRunning : false
+				slideshowRunning : false,
+				preloadingState : {
+					items : 0,
+					loadedItems : 0
+				}
 			};
 		}
 		clearState();
@@ -209,10 +221,31 @@ var flickrGalleryPlus = function () {
 		setStatusBar();
 		
 		if (preloadImages) {
+			state.preloadingState.items = state.thumbnails.length;
+			state.preloadingState.loadedItems = 0;
+			preloadingProgressBar.setAttribute("value", 0);
+			preloadingText.className = "loading";
+			preloadingProgressBar.className = "loading";
 			for (var j=0, jl=state.thumbnails.length, preload; j<jl; j++) {
 				preload = content.document.createElement("img").wrappedJSObject;
 				preload.setAttribute("src", state.thumbnails[j].src);
+				preload.onload = preloadImageCount;
 			}
+		}
+	};
+	
+	preloadImageCount = function () {
+		var state = getState(),
+			items = state.preloadingState.items;
+		state.preloadingState.loadedItems += 1;
+		var loadedItems = state.preloadingState.loadedItems;
+		if (items === loadedItems) {
+			preloadingText.className = "";
+			preloadingProgressBar.className = "";
+		}
+		else {
+			//alert(parseInt((loadedItems / items) * 100, 10));
+			preloadingProgressBar.setAttribute("value", parseInt((loadedItems / items) * 100, 10));
 		}
 	};
 	
