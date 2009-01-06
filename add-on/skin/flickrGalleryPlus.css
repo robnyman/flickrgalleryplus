@@ -56,3 +56,19 @@
 	width: 16px;
 	margin: 0 5px;
 }
+
+#flickrGalleryPlus-status-bar-preloading-text {
+	display: none;
+}
+
+#flickrGalleryPlus-status-bar-preloading-text.loading {
+	display: block;
+}
+
+#flickrGalleryPlus-preloading-progress-bar {
+	display: none;
+}
+
+#flickrGalleryPlus-preloading-progress-bar.loading {
+	display: block;
+}
