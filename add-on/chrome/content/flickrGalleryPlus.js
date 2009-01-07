@@ -8,6 +8,8 @@ var flickrGalleryPlus = function () {
 		startSlideshowText = "Start slideshow",
 		stopSlideshowText = "Stop slideshow",
 		slideTime = 3000,
+		preloadImages,
+		preloadImagesWhenSlideshowIsRun,
 		preloadingText,
 		preloadingProgressBar,
 		prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
@@ -16,8 +18,13 @@ var flickrGalleryPlus = function () {
 		var autoRun = prefManager.getBoolPref("extensions.flickrgalleryplus.autorun"),
 			mainImage;
 		statusBarButton = document.getElementById("flickrGalleryPlus-status-bar");
+		preloadImages = prefManager.getBoolPref("extensions.flickrgalleryplus.preloadImages");
+		preloadImagesWhenSlideshowIsRun = prefManager.getBoolPref("extensions.flickrgalleryplus.preloadImagesWhenSlideShowIsRun");
 		preloadingText = document.getElementById("flickrGalleryPlus-status-bar-preloading-text");
 		preloadingProgressBar = document.getElementById("flickrGalleryPlus-preloading-progress-bar");
+		stopSlideshow();
+		preloadingText.className = "";
+		preloadingProgressBar.className = "";
 		if (autoRun && /flickr\.com\/photos\/[^\/]+\/sets\//i.test(content.location.href)) {
 			mainImage = content.document.getElementById("primary_photo_img");
 			if (mainImage) {
@@ -103,7 +110,7 @@ var flickrGalleryPlus = function () {
 			state.preloadingState = {
 				items : 0,
 				loadedItems : 0
-			},
+			};
 			
 			stopSlideshow();
 		}
@@ -176,14 +183,26 @@ var flickrGalleryPlus = function () {
 		state.primaryPhoto.load(function () {
 			this.style.visibility = "visible";
 			if (state.slideshowRunning) {
+				clearTimeout(state.slideTimer);
+				clearTimeout(state.slideIncrementTimer);
 				state.primaryPhoto.fadeTo(500, 1);
+				state.slideTimer = setTimeout(function () {
+					if(state.currentImageIndex < (state.thumbnails.length - 1)) {
+						state.primaryPhoto.fadeTo(500, 0.01);
+						state.slideIncrementTimer = setTimeout(function () {
+							imageNavigation(false);
+						}, 500);
+					}
+					else {
+						stopSlideshow();
+					}
+				}, slideTime);
 			}
 			clearTimeout(state.timer);
 			state.loadingImage.hide();
 		});
 		
-		var thumbnailElms = $("#setThumbs .pc_img"),
-			preloadImages = prefManager.getBoolPref("extensions.flickrgalleryplus.preloadImages");
+		var thumbnailElms = $("#setThumbs .pc_img");
 		for (var i=0, il=thumbnailElms.length, thumbnail, thumbnailImg, thumbnailTitle, lastBy; i<il; i++) {
 			thumbnail = $(thumbnailElms[i]);
 			thumbnailImg = thumbnail[0];
@@ -215,22 +234,30 @@ var flickrGalleryPlus = function () {
 				else if(keyCode === 39) {
 					imageNavigation(false);
 				}
+				if (keyCode === 13) {
+					goToSingleImagePage();
+				}
 			}
 		});
 		
 		setStatusBar();
 		
 		if (preloadImages) {
-			state.preloadingState.items = state.thumbnails.length;
-			state.preloadingState.loadedItems = 0;
-			preloadingProgressBar.setAttribute("value", 0);
-			preloadingText.className = "loading";
-			preloadingProgressBar.className = "loading";
-			for (var j=0, jl=state.thumbnails.length, preload; j<jl; j++) {
-				preload = content.document.createElement("img").wrappedJSObject;
-				preload.setAttribute("src", state.thumbnails[j].src);
-				preload.onload = preloadImageCount;
-			}
+			preloadAllImages();
+		}
+	};
+	
+	preloadAllImages = function () {
+		var state = getState();
+		state.preloadingState.items = state.thumbnails.length;
+		state.preloadingState.loadedItems = 0;
+		preloadingProgressBar.setAttribute("value", 0);
+		preloadingText.className = "loading";
+		preloadingProgressBar.className = "loading";
+		for (var j=0, jl=state.thumbnails.length, preload; j<jl; j++) {
+			preload = content.document.createElement("img").wrappedJSObject;
+			preload.setAttribute("src", state.thumbnails[j].src);
+			preload.onload = preloadImageCount;
 		}
 	};
 	
@@ -244,7 +271,6 @@ var flickrGalleryPlus = function () {
 			preloadingProgressBar.className = "";
 		}
 		else {
-			//alert(parseInt((loadedItems / items) * 100, 10));
 			preloadingProgressBar.setAttribute("value", parseInt((loadedItems / items) * 100, 10));
 		}
 	};
@@ -264,15 +290,20 @@ var flickrGalleryPlus = function () {
 		var state = getState(),
 			thumb = state.thumbnails[index],
 			primary = state.primaryPhoto;
+		primary.attr("src", thumb.src);
 		state.timer = window.setTimeout(function () {
 			state.loadingImage.show();
-		}, 200);
-		primary.attr("src", thumb.src);
+		}, 300);
 		primary.parent("a").attr("href", thumb.href);
 		state.imageTextContainer.html(thumb.title);
 		state.thumbnails[state.currentImageIndex].img.removeClass("flickrGalleryPlus-selected");
 		state.currentImageIndex = index;
 		thumb.img.addClass("flickrGalleryPlus-selected");
+	};
+	
+	goToSingleImagePage = function () {
+		var state = getState();
+		content.location.href = state.thumbnails[state.currentImageIndex].href;
 	};
 	
 	controlSlideshow = function () {
@@ -287,31 +318,21 @@ var flickrGalleryPlus = function () {
 	
 	startSlideshow = function () {
 		var state = getState(),
-		startAtFirstImage = prefManager.getBoolPref("extensions.flickrgalleryplus.startSlideshowAtFirstImage");
+			startAtFirstImage = prefManager.getBoolPref("extensions.flickrgalleryplus.startSlideshowAtFirstImage");
 		state.slideshowRunning = true;
 		state.controlSlideshow.text(stopSlideshowText);
 		state.controlSlideshow.addClass("stop-slideshow");
-		if (startAtFirstImage) {
-			setImage(0);
+		setImage((startAtFirstImage)? 0 : state.currentImageIndex);
+		if (!preloadImages && preloadImagesWhenSlideshowIsRun) {
+			preloadAllImages();
 		}
-		state.slideTimer = setInterval(function () {
-			if(state.currentImageIndex < (state.thumbnails.length - 1)) {
-				state.primaryPhoto.fadeTo(500, 0.01);
-				state.slideIncrementTimer = setTimeout(function () {
-					imageNavigation(false);
-				}, 500);
-			}
-			else {
-				stopSlideshow();
-			}
-		}, slideTime);
 		return false;
 	};
 	
 	stopSlideshow = function () {
 		var state = getState();
 		if (state) {
-			clearInterval(state.slideTimer);
+			clearTimeout(state.slideTimer);
 			clearTimeout(state.slideIncrementTimer);
 			state.slideshowRunning = false;
 			if (state.controlSlideshow) {

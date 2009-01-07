@@ -11,6 +11,7 @@
 			<preference id="flickrGalleryPlus-slideshow-slide-time" name="extensions.flickrgalleryplus.slideshowSlideTime" type="int"/>
 			<preference id="flickrGalleryPlus-start-slideshow-at-first-image" name="extensions.flickrgalleryplus.startSlideshowAtFirstImage" type="bool"/>
 			<preference id="flickrGalleryPlus-preload-images" name="extensions.flickrgalleryplus.preloadImages" type="bool"/>
+			<preference id="flickrGalleryPlus-preload-images-when-slideshow-is-run" name="extensions.flickrgalleryplus.preloadImagesWhenSlideShowIsRun" type="bool"/>
 		</preferences>
 		
 		<groupbox>
@@ -44,6 +45,12 @@
 						<label control="preload-images" value="Preload images"/>
 						<checkbox id="preload-images" preference="flickrGalleryPlus-preload-images"/>
 					</row>
+					
+					<row>	
+						<label control="preload-images-for-slideshow" value="Preload images when slideshow is run"/>
+						<checkbox id="preload-images-for-slideshow" preference="flickrGalleryPlus-preload-images-when-slideshow-is-run"/>
+					</row>
+					
 				</rows>
 			</grid>
 		</groupbox>	
