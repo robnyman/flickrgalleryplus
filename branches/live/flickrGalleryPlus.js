@@ -22,6 +22,7 @@ var flickrGalleryPlus = function () {
 			script,
 			link;
 		if (mainImage && head) {
+			stopSlideshow();
 			mainImage.style.visibility = "hidden";
 			
 			link = document.createElement("link");
@@ -59,7 +60,20 @@ var flickrGalleryPlus = function () {
 		primaryPhoto.load(function () {
 			this.style.visibility = "visible";
 			if (slideshowRunning) {
+				clearTimeout(slideTimer);
+				clearTimeout(slideIncrementTimer);
 				primaryPhoto.fadeTo(500, 1);
+				slideTimer = setTimeout(function () {
+					if(currentImageIndex < (thumbnails.length - 1)) {
+						primaryPhoto.fadeTo(500, 0.01);
+						slideIncrementTimer = setTimeout(function () {
+							imageNavigation(false);
+						}, 500);
+					}
+					else {
+						stopSlideshow();
+					}
+				}, slideTime);
 			}
 			clearTimeout(timer);
 			loadingImage.hide();
@@ -97,6 +111,9 @@ var flickrGalleryPlus = function () {
 				else if(keyCode === 39) {
 					imageNavigation(false);
 				}
+				if (keyCode === 13) {
+					goToSingleImagePage();
+				}
 			}
 		});
 		
@@ -119,15 +136,19 @@ var flickrGalleryPlus = function () {
 	
 	setImage = function (index) {
 		var thumb = thumbnails[index];
+		primaryPhoto.attr("src", thumb.src);
 		timer = window.setTimeout(function () {
 			loadingImage.show();
 		}, 200);
-		primaryPhoto.attr("src", thumb.src);
 		primaryPhoto.parent("a").attr("href", thumb.href);
 		imageTextContainer.html(thumb.title);
 		thumbnails[currentImageIndex].img.removeClass("flickrGalleryPlus-selected");
 		currentImageIndex = index;
 		thumb.img.addClass("flickrGalleryPlus-selected");
+	};
+	
+	goToSingleImagePage = function () {
+		location.href = thumbnails[currentImageIndex].href;
 	};
 	
 	controlSlideshow = function () {
@@ -143,25 +164,12 @@ var flickrGalleryPlus = function () {
 		slideshowRunning = true;
 		controlSlideshowLink.text(stopSlideshowText);
 		controlSlideshowLink.addClass("stop-slideshow");
-		if (startAtFirstImage) {
-			setImage(0);
-		}
-		slideTimer = setInterval(function () {
-			if(currentImageIndex < (thumbnails.length - 1)) {
-				primaryPhoto.fadeTo(500, 0.01);
-				slideIncrementTimer = setTimeout(function () {
-					imageNavigation(false);
-				}, 500);
-			}
-			else {
-				stopSlideshow();
-			}
-		}, slideTime);
+		setImage((startAtFirstImage)? 0 : state.currentImageIndex);
 		return false;
 	};
 	
 	stopSlideshow = function () {
-		clearInterval(slideTimer);
+		clearTimeout(slideTimer);
 		clearTimeout(slideIncrementTimer);
 		slideshowRunning = false;
 		if (controlSlideshowLink) {
