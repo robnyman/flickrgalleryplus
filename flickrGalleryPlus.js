@@ -102,12 +102,14 @@ var flickrGalleryPlus = function () {
 		setImage(0);
 		
 		$(document).keypress(function (evt) {
-			var keyCode = evt.keyCode,
-				altKey = evt.originalEvent.altKey;
-				
 			if (/webkit/i.test(navigator.userAgent)) {
 				alert("Safari");
 			}
+			
+			var keyCode = evt.keyCode,
+				altKey = evt.originalEvent.altKey;
+				
+			
 				
 			if (!altKey) {
 				if (keyCode === 37) {
