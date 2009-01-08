@@ -101,33 +101,33 @@ var flickrGalleryPlus = function () {
 		
 		setImage(0);
 		
-		$(document).keypress(function (evt) {
-			if (/webkit/i.test(navigator.userAgent)) {
-				alert("Safari");
-			}
-			
-			var keyCode = evt.keyCode,
-				altKey = evt.originalEvent.altKey;
-				
-			
-				
-			if (!altKey) {
-				if (keyCode === 37) {
-					imageNavigation(true);
-				}
-				else if(keyCode === 39) {
-					imageNavigation(false);
-				}
-				if (keyCode === 13) {
-					goToSingleImagePage();
-				}
-			}
-		});
+		if (/webkit/i.test(navigator.userAgent)) {
+			$(document).keydown(handleKeyPress);
+		}
+		else {
+			$(document).keypress(handleKeyPress);
+		}
 		
 		if (preloadImages) {
 			for (var j=0, jl=thumbnails.length, preload; j<jl; j++) {
 				preload = document.createElement("img");
 				preload.setAttribute("src", thumbnails[j].src);
+			}
+		}
+	};
+	
+	handleKeyPress = function (evt) {
+		var keyCode = evt.keyCode,
+			altKey = evt.originalEvent.altKey;
+		if (!altKey) {
+			if (keyCode === 37) {
+				imageNavigation(true);
+			}
+			else if(keyCode === 39) {
+				imageNavigation(false);
+			}
+			if (keyCode === 13) {
+				goToSingleImagePage();
 			}
 		}
 	};
